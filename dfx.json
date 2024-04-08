@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "icp_gaming_backend": {
+      "main": "src/icp_gaming_backend/main.mo",
+      "type": "motoko"
+    },
+    "icp_gaming_frontend": {
+      "dependencies": [
+        "icp_gaming_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/icp_gaming_frontend/src/index.html"
+      },
+      "source": [
+        "src/icp_gaming_frontend/assets",
+        "dist/icp_gaming_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
