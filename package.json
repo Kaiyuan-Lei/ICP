@@ -14,7 +14,7 @@
     "start": "webpack serve --mode development --env development",
     "deploy:local": "dfx deploy --network=local",
     "deploy:ic": "dfx deploy --network=ic",
-    "generate": "dfx generate icp_gaming_backend"
+    "generate": "dfx generate HHbackend"
   },
   "dependencies": {
     "@dfinity/agent": "^1.2.0",
