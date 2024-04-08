@@ -7,7 +7,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-const frontendDirectory = "icp_gaming_frontend";
+const frontendDirectory = "HHfrontend";
 
 const frontend_entry = path.join("src", frontendDirectory, "src", "index.html");
 

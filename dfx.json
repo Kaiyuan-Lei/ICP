@@ -1,19 +1,19 @@
 {
   "canisters": {
-    "icp_gaming_backend": {
-      "main": "src/icp_gaming_backend/main.mo",
+    "HHbackend": {
+      "main": "src/HHbackend/main.mo",
       "type": "motoko"
     },
-    "icp_gaming_frontend": {
+    "HHfrontend": {
       "dependencies": [
-        "icp_gaming_backend"
+        "HHbackend"
       ],
       "frontend": {
-        "entrypoint": "src/icp_gaming_frontend/src/index.html"
+        "entrypoint": "src/HHfrontend/src/index.html"
       },
       "source": [
-        "src/icp_gaming_frontend/assets",
-        "dist/icp_gaming_frontend/"
+        "src/HHfrontend/assets",
+        "dist/HHfrontend/"
       ],
       "type": "assets"
     }
