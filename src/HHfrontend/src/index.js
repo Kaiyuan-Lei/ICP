@@ -1,4 +1,4 @@
-import { HHbackend } from "../../declarations/HHbackend";
+import { icp_gaming_backend } from "../../declarations/icp_gaming_backend";
 
 document.querySelector("form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -9,7 +9,7 @@ document.querySelector("form").addEventListener("submit", async (e) => {
   button.setAttribute("disabled", true);
 
   // Interact with foo actor, calling the greet method
-  const greeting = await HHbackend.greet(name);
+  const greeting = await icp_gaming_backend.greet(name);
 
   button.removeAttribute("disabled");
 
