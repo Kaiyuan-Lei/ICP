@@ -5,7 +5,9 @@ import { Button } from 'antd'
 const Home = () => {
   return (
     <>
-      <h1 className=" text-3xl text-center">Home page</h1>
+      <h1 className=" text-3xl text-center mt-10">
+        Welcome to Playtoken Palace
+      </h1>
     </>
   )
 }

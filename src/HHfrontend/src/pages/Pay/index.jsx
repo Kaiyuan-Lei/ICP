@@ -6,7 +6,7 @@ import { Card, Descriptions, Button } from 'antd'
 
 const Pay = () => {
   const [searchParams] = useSearchParams()
-  const { actor, cActor, agent } = useAuth()
+  const { actor, cActor } = useAuth()
   const [info, setInfo] = useState({})
 
   const getMachineInfo = async () => {
@@ -18,13 +18,19 @@ const Pay = () => {
   }
 
   const approval = async () => {
-    console.log(info.price, Principal.fromText(info.owner))
-    const fee = await cActor.icrc1_fee()
+    console.log('approval')
+    //const fee = await cActor.icrc1_fee()
     await cActor.icrc2_approve({
       amount: info.price,
-      fee: fee,
+      fee: [],
+      memo: [],
+      from_subaccount: [],
+      created_at_time: [],
+      expected_allowance: [],
+      expires_at: [],
       spender: {
         owner: Principal.fromText(info.owner),
+        subaccount: [],
       },
     })
     await handlePay()
@@ -32,7 +38,7 @@ const Pay = () => {
   }
 
   const handlePay = async () => {
-    console.log(Number(info.price), info.owner)
+    console.log('pay', Number(info.price), info.owner)
     await actor.pay(Number(info.price), info.owner)
   }
 

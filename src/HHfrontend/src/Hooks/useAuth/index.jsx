@@ -59,7 +59,9 @@ export const AuthProvider = ({ children }) => {
     const identity = authClient.getIdentity()
     const _agent = new HttpAgent({ identity })
     setAgent(_agent)
-    const _actor = createActor(process.env.CANISTER_ID_HHBACKEND, { _agent })
+    const _actor = createActor(process.env.CANISTER_ID_HHBACKEND, {
+      _agent,
+    })
     const _cActor = iCreateActor(process.env.CANISTER_ID_ICP_LEDGER_CANISTER, {
       _agent,
     })
