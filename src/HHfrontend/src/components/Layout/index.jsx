@@ -37,7 +37,7 @@ function App(props) {
               icon: <DesktopOutlined />,
             },
             {
-              label: <Link to="/list">List</Link>,
+              label: <Link to="/list">MachineList</Link>,
               key: 'list',
               icon: <ClusterOutlined />,
             },

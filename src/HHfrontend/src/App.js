@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Layout from '@/components/Layout'
 import Home from '@/pages/Home'
-import List from '@/pages/List'
+import List from '@/pages/MachineList'
 import Login from '@/pages/Login'
 import Pay from '@/pages/Pay'
 

@@ -1,6 +1,9 @@
 import React, { createContext, useState, useContext } from 'react'
 import { AuthClient } from '@dfinity/auth-client'
+import { HttpAgent } from '@dfinity/agent'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
+import { createActor } from '../../../../declarations/HHbackend'
+import { createActor as iCreateActor } from '../../../../declarations/icp_ledger_canister'
 
 const days = BigInt(1)
 const hours = BigInt(24)
@@ -27,9 +30,13 @@ const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const [authClient, setAuthClient] = useState(null)
   const [principalId, setPrincipalId] = useState('')
+  const [agent, setAgent] = useState(null)
+  const [actor, setActor] = useState(null)
+  const [cActor, setCActor] = useState(null)
+
   const init = async () => {
     console.log('init========')
     const _authClient = await AuthClient.create(defaultOptions.createOptions)
@@ -50,6 +57,14 @@ export const AuthProvider = ({ children }) => {
     console.log('handleAuthenticated========')
     console.log(location)
     const identity = authClient.getIdentity()
+    const _agent = new HttpAgent({ identity })
+    setAgent(_agent)
+    const _actor = createActor(process.env.CANISTER_ID_HHBACKEND, { _agent })
+    const _cActor = iCreateActor(process.env.CANISTER_ID_ICP_LEDGER_CANISTER, {
+      _agent,
+    })
+    setActor(_actor)
+    setCActor(_cActor)
     const _principalId = identity.getPrincipal().toText()
     setPrincipalId(_principalId)
     console.log(_principalId)
@@ -57,6 +72,8 @@ export const AuthProvider = ({ children }) => {
       if (location.pathname.startsWith('/login')) {
         if (location.search.includes('redirect')) {
           navigate(decodeURIComponent(searchParams.get('redirect')))
+        } else {
+          navigate('/')
         }
       }
     } else {
@@ -90,6 +107,9 @@ export const AuthProvider = ({ children }) => {
         logout,
         init,
         principalId,
+        agent,
+        actor,
+        cActor,
       }}
     >
       {children}

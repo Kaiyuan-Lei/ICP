@@ -56,7 +56,6 @@ module.exports = {
   //  ]
   // },
   plugins: [
-    ['import', { libraryName: 'antd', style: 'css' }, 'antd'],
     new HtmlWebpackPlugin({
       template: path.join(__dirname, frontend_entry),
       cache: false,
@@ -81,6 +80,7 @@ module.exports = {
         },
       ],
     }),
+    // ['import', { libraryName: 'antd', style: 'css' }, 'antd'],
   ],
   // proxy /api to port 4943 during development.
   // if you edit dfx.json to define a project-specific local network, change the port to match.
