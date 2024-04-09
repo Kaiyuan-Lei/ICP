@@ -4,7 +4,9 @@ import Trie "mo:base/Trie";
 import Text "mo:base/Text";
 import Nat "mo:base/Nat";
 import Bool "mo:base/Bool";
+import Time "mo:base/Time";
 import IcpLedger "canister:icp_ledger_canister";
+import Types "types";
 
 actor {
   type Key<T> = Trie.Key<T>;
@@ -80,6 +82,7 @@ actor {
             break down;
           };
         };
+        result.status := await call();
         return result;
       };
     };
@@ -136,6 +139,39 @@ actor {
     }catch(error: Error){
         return false
     }
+  };
+  public shared({caller}) func call(): async(Bool){
+    let ic : Types.IC = actor ("aaaaa-aa");
+    let ONE_MINUTE : Nat64 = 60;
+    let start_timestamp : Types.Timestamp = 1682978460; //May 1, 2023 22:01:00 GMT
+    let end_timestamp : Types.Timestamp = 1682978520;//May 1, 2023 22:02:00 GMT
+    let host : Text = "api.pro.coinbase.com";
+    let url = "https://" # host # "/products/ICP-USD/candles?start=" # Nat64.toText(start_timestamp) # "&end=" # Nat64.toText(start_timestamp) # "&granularity=" # Nat64.toText(ONE_MINUTE);
+    let request_headers = [
+        { name = "Host"; value = host # ":443" },
+        { name = "User-Agent"; value = "exchange_rate_canister" },
+    ];
+    let transform_context : Types.TransformContext = {
+      function = transform;
+      context = Blob.fromArray([]);
+    };
+    let http_request : Types.HttpRequestArgs = {
+        url = url;
+        max_response_bytes = null; //optional for request
+        headers = request_headers;
+        body = null; //optional for request
+        method = #get;
+        transform = ?transform_context;
+    };
+    Cycles.add(230_949_972_000);
+    let http_response : Types.HttpResponsePayload = await ic.http_request(http_request);
+    return true;
+    // let response_body: Blob = Blob.fromArray(http_response.body);
+    // let decoded_text: Text = switch (Text.decodeUtf8(response_body)) {
+    //     case (null) { "No value returned" };
+    //     case (?y) { return true };
+    // };
+    // decoded_text
   };
 
 
