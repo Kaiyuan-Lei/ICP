@@ -1,12 +1,10 @@
 import Array "mo:base/Array";
 import Principal "mo:base/Principal";
-import Float "mo:base/Float";
 import Trie "mo:base/Trie";
 import Text "mo:base/Text";
-import Hash "mo:base/Hash";
 import Nat "mo:base/Nat";
 import Bool "mo:base/Bool";
-import Iter "mo:base/Iter";
+import IcpLedger "canister:icp_ledger_canister";
 
 actor {
   type Key<T> = Trie.Key<T>;
@@ -52,8 +50,7 @@ actor {
     let newMachine : GameMachine = {
       id = id;
       name = name;
-      // 默认游戏机状态为未使用
-      status = false;
+      status = true;
       price = price;
       // 默认游戏机厅拥有者为游戏机厅创建者
       owner = Principal.toText(caller);
@@ -65,42 +62,25 @@ actor {
         newMachines := Array.append<GameMachine>(machines, [newMachine]);
       };
     };
-    machinesTrie := Trie.replace<Principal, [GameMachine]>(machinesTrie, key(caller), Principal.equal, ?newMachines).0;
-  };
-
-  // 更新游戏机厅附属的游戏机
-  // 时间复杂度是 O(log n)，其中 n 是 Trie 中的元素数量
-  // 空间复杂度是 O(m)，其中 m 是 machines 数组的长度
-  public shared ({ caller }) func updateMachine(id : Nat, name : Text, status : Bool, price : Nat) : async () {
-    let machinesOpt = Trie.find<Principal, [GameMachine]>(machinesTrie, key caller, Principal.equal);
-    switch (machinesOpt) {
-      case (null) {};
-      case (?machines) {
-        let len = Array.size<GameMachine>(machines);
-        var tmp : [GameMachine] = [];
-        for (i in Iter.range(0, len - 1)) {
-          if (machines[i].id == id) {
-            if (machines[i].id != id) {
-              tmp := Array.append<GameMachine>(tmp, [machines[i]]);
-            } else {
-              tmp := Array.append<GameMachine>(tmp, [{ id = id; name = name; status = status; price = price; owner = Principal.toText(caller) }]);
-            };
-          };
-        };
-        machinesTrie := Trie.replace<Principal, [GameMachine]>(machinesTrie, key(caller), Principal.equal, ?tmp).0;
-      };
-    };
+    machinesTrie := Trie.replace(machinesTrie, key caller , Principal.equal, ?newMachines).0;
   };
 
   // 获取游戏机信息
-  public shared ({ caller }) func getMachineInfo(id : Nat, hallId : Text) : async (GameMachine) {
-    var machines = Trie.get(machinesTrie, key(Principal.fromText(hallId)), Principal.equal);
+  public shared func getMachineInfo(id : Nat, owner : Text) : async (GameMachine) {
+    var machines = Trie.get(machinesTrie, key(Principal.fromText(owner)), Principal.equal);
     switch (machines) {
       case (null) {
         return { id = 0; name = ""; status = false; price = 0; owner = "" };
       };
       case (?machines) {
-        // bianli
+        var result : GameMachine = { id = 0; name = ""; status = false; price = 0; owner = "" };
+        label down for(machine in machines.vals()){
+          if (Nat.equal(machine.id, id)){
+            result := machine;
+            break down;
+          };
+        };
+        return result;
       };
     };
   };
@@ -120,15 +100,43 @@ actor {
     };
   };
 
-  public shared ({ caller }) func gameHallList() : async ([GameHall]) {
-    var halls = Trie.get(gameHallsTrie, key caller, Principal.equal);
-    switch (halls) {
-      case (null) {
-        return [];
-      };
-      case (?hall) {
-        return [hall];
-      };
-    };
+  public shared ({ caller }) func hallInfo() : async (?GameHall) {
+    Trie.get(gameHallsTrie, key caller, Principal.equal);
   };
+
+  // 支付相关
+  public shared ({ caller }) func balance(): async(Nat){
+    await IcpLedger.icrc1_balance_of({owner=caller; subaccount=null})
+  };
+
+  public shared ({ caller }) func fee(): async(Nat){
+    await IcpLedger.icrc1_fee()
+  };
+
+  public shared({caller}) func pay(amount: Nat, to: Text): async(Bool){
+    let tx : IcpLedger.TransferFromArgs = {
+      from = {owner=caller;subaccount=null};
+      memo=null;
+      amount=amount;
+      spender_subaccount=null;
+      fee=null;
+      to={owner=Principal.fromText(to); subaccount=null};
+      created_at_time=null;
+    };
+    try{
+      let result = await IcpLedger.icrc2_transfer_from(tx);
+      switch(result){
+        case(#Err(transferError)){
+          return false;
+        };
+        case(#Ok(blockIndex)){
+          return true;
+        };
+      };
+    }catch(error: Error){
+        return false
+    }
+  };
+
+
 };
