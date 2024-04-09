@@ -19,7 +19,7 @@ export const defaultOptions = {
     identityProvider:
       process.env.DFX_NETWORK === 'ic'
         ? 'https://identity.ic0.app/#authorize'
-        : `http://localhost:4943?canisterId=rdmx6-jaaaa-aaaaa-aaadq-cai#authorize`,
+        : `http://localhost:4943?canisterId=${process.env.CANISTER_ID_HHBACKEND}#authorize`,
     // Maximum authorization expiration is 8 days
     maxTimeToLive: days * hours * nanoseconds,
   },
@@ -53,17 +53,21 @@ export const AuthProvider = ({ children }) => {
       }
     }
   }
-  const handleAuthenticated = (authClient) => {
+
+  const handleAuthenticated = async (authClient) => {
     console.log('handleAuthenticated========')
     console.log(location)
     const identity = authClient.getIdentity()
-    const _agent = new HttpAgent({ identity })
-    setAgent(_agent)
+
+    const agent = new HttpAgent({ identity })
+    // await agent.fetchRootKey()
+    // setAgent(agent)
+    // console.log(agent)
     const _actor = createActor(process.env.CANISTER_ID_HHBACKEND, {
-      _agent,
+      agent,
     })
     const _cActor = iCreateActor(process.env.CANISTER_ID_ICP_LEDGER_CANISTER, {
-      _agent,
+      agent,
     })
     setActor(_actor)
     setCActor(_cActor)
